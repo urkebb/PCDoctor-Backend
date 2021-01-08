@@ -1,6 +1,7 @@
 const HttpError = require('../models/http-error');
+const uuid = require('uuid/v4');
 
-const DUMMY_POSTS = [
+let DUMMY_POSTS = [
     {
         id: 'p1',
         title: 'Empire State Building',
@@ -42,5 +43,39 @@ const getPostByUserId = (req, res, next) => {
     res.json({ post });
 };
 
-exports.getPostById= getPostById;
-exports.getPostByUserId=getPostByUserId;
+const createPost = (req, res, next) => {
+    const { title, description, creator } = req.body;
+
+    const createdPost = {
+        id: uuid(),
+        title,
+        description,
+        creator
+    };
+
+    DUMMY_POSTS.push(createdPost);
+    res.status(201).json({ post: createdPost });
+};
+
+const updatePost = (req, res, next) => {
+    const { title, description } = req.body;
+    const postId = req.params.pid;
+
+    const updatedPost = { ...DUMMY_POSTS.find(p => p.id === postId) };
+    const postIndex = DUMMY_POSTS.findIndex(p => p.id === postId);
+    updatePost.title = title;
+    updatedPost.description = description;
+    DUMMY_POSTS[postIndex] = updatedPost;
+    res.status(200).json({post: updatedPost});
+};
+const deletePost = (req, res, next) => {
+    const postId =req.params.pid;
+    DUMMY_POSTS= DUMMY_POSTS.filter(p => p.id !== postId);
+    res.stauts(200).json({message: 'Deleted place.'});
+ };
+
+exports.getPostById = getPostById;
+exports.getPostByUserId = getPostByUserId;
+exports.createPost = createPost;
+exports.updatePost = updatePost;
+exports.deletePost = deletePost;
