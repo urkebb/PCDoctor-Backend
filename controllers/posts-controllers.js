@@ -26,21 +26,21 @@ const getPostById = (req, res, next) => {
 };
 
 
-const getPostByUserId = (req, res, next) => {
+const getPostsByUserId = (req, res, next) => {
     const userId = req.params.uid;
 
-    const post = DUMMY_POSTS.find(p => {
+    const posts = DUMMY_POSTS.filter(p => {
         return p.creator === userId;
     });
 
-    if (!post) {
+    if (!posts || posts.length === 0) {
 
         return next(
-            new Error('Ne mogu da pronadjem post za navedeni korisnikov ID', 404)
+            new Error('Ne mogu da pronadjem postove za navedeni korisnikov ID', 404)
         );
     }
 
-    res.json({ post });
+    res.json({ posts });
 };
 
 const createPost = (req, res, next) => {
@@ -75,7 +75,7 @@ const deletePost = (req, res, next) => {
  };
 
 exports.getPostById = getPostById;
-exports.getPostByUserId = getPostByUserId;
+exports.getPostsByUserId = getPostsByUserId;
 exports.createPost = createPost;
 exports.updatePost = updatePost;
 exports.deletePost = deletePost;
