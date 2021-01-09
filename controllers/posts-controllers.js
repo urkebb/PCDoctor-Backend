@@ -1,5 +1,6 @@
 const HttpError = require('../models/http-error');
 const uuid = require('uuid/v4');
+const {validationResult } = require('express-validator');
 
 let DUMMY_POSTS = [
     {
@@ -44,6 +45,13 @@ const getPostsByUserId = (req, res, next) => {
 };
 
 const createPost = (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty())
+    {
+        console.log(errors);
+        throw new HttpError('los input',422);
+    }
+
     const { title, description, creator } = req.body;
 
     const createdPost = {
@@ -58,6 +66,13 @@ const createPost = (req, res, next) => {
 };
 
 const updatePost = (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty())
+    {
+        console.log(errors);
+        throw new HttpError('los input',422);
+    }
+
     const { title, description } = req.body;
     const postId = req.params.pid;
 
@@ -70,6 +85,10 @@ const updatePost = (req, res, next) => {
 };
 const deletePost = (req, res, next) => {
     const postId =req.params.pid;
+    if(!DUMMY_POSTS.find(p=>p.id === postId))
+    {
+        throw new HttpError ('nisam mogo da nadjem post',404);
+    }
     DUMMY_POSTS= DUMMY_POSTS.filter(p => p.id !== postId);
     res.stauts(200).json({message: 'Deleted place.'});
  };
