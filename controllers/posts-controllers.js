@@ -1,49 +1,59 @@
 const HttpError = require('../models/http-error');
 const uuid = require('uuid/v4');
 const {validationResult } = require('express-validator');
+const { Client } = require('cassandra-driver');
+
+const app = require('../app');
 
 let DUMMY_POSTS = [
     {
         id: 'p1',
         title: 'Empire State Building',
         description: 'One of the most famous sky scrapers in the world!',
-        creator: 'u1'
+        creator: 'u1',
+        like: 0,
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
     }
 ];
 
-
 const getPostById = (req, res, next) => {
     const postId = req.params.pid; // { pid: 'p1' }
-    const post = DUMMY_POSTS.find(p => {
-        return p.id === postId;
+    const query = 'SELECT * FROM "Post" WHERE "postID"=? ALLOW FILTERING';
+    app.client.execute(query, [postId],(err,result)=>{
+        if(err){
+            res.status(404).send({msg:err});
+        }else
+        { 
+            res.json({post: result.rows});
+        }
     });
+    //const post = DUMMY_POSTS.find(p => {
+      //  return p.id === postId;
+    //});
 
-    if (!post) {
+    //if (!post) {
 
-        throw new HttpError('Ne mogu pronaci post za prosledjeni ID', 404);
-    }
+      //  throw new HttpError('Ne mogu pronaci post za prosledjeni ID', 404);
+    //}
 
-    res.json({ post }); // => { place } => { place: place }
+   // res.json({ post }); // => { place } => { place: place }
 };
 
 
 const getPostsByUserId = (req, res, next) => {
     const userId = req.params.uid;
-
-    const posts = DUMMY_POSTS.filter(p => {
-        return p.creator === userId;
+    const query = 'SELECT * FROM "Post" WHERE "creator"=? ALLOW FILTERING';
+    app.client.execute(query, [userId],(err,result)=>{
+        if(err){
+            res.status(404).send({msg:err});
+        }else
+        { 
+            res.json({post: result.rows});
+        }
     });
-
-    if (!posts || posts.length === 0) {
-
-        return next(
-            new Error('Ne mogu da pronadjem postove za navedeni korisnikov ID', 404)
-        );
-    }
-
-    res.json({ posts });
 };
 
+var insertPost = 'INSERT INTO "Post" (creator,description,image,like,"postID",title)';
 const createPost = (req, res, next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty())
@@ -56,13 +66,15 @@ const createPost = (req, res, next) => {
 
     const createdPost = {
         id: uuid(),
-        title,
-        description,
-        creator
+        title:'mikri',
+        description:'maus',
+        creator:'u3'
     };
-
-    DUMMY_POSTS.push(createdPost);
+    client.execute(insertPost,['u4','boka svilen','kurac','palek','brmbrm']);
+    //DUMMY_POSTS.push(createdPost);
     res.status(201).json({ post: createdPost });
+
+
 };
 
 const updatePost = (req, res, next) => {
@@ -85,12 +97,15 @@ const updatePost = (req, res, next) => {
 };
 const deletePost = (req, res, next) => {
     const postId =req.params.pid;
-    if(!DUMMY_POSTS.find(p=>p.id === postId))
-    {
-        throw new HttpError ('nisam mogo da nadjem post',404);
-    }
-    DUMMY_POSTS= DUMMY_POSTS.filter(p => p.id !== postId);
-    res.stauts(200).json({message: 'Deleted place.'});
+    const query = 'DELETE FROM "Post" WHERE "postID"=? ALLOW FILTERING';
+    app.client.execute(query, [postId],(err,result)=>{
+        if(err){
+            res.status(404).send({msg:err});
+        }else
+        { 
+            res.json({msg: "Obrisan je post"});
+        }
+    });
  };
 
 exports.getPostById = getPostById;

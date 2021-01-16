@@ -12,7 +12,7 @@ router.get('/:pid', postsControllers.getPostById);
 
 router.get('/user/:uid',postsControllers.getPostsByUserId );
 
-router.post('/',[check('title').not().isEmpty(),check('decsription').isLength({min: 5})], postsControllers.createPost);
+router.post('/',[check('title').not().isEmpty(),check('description').isLength({min: 5})], postsControllers.createPost);
 
 router.patch('/:pid',
 [
