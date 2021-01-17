@@ -3,6 +3,8 @@ const {validationResult} = require('express-validator');
 
 const HttpError = require('../models/http-error');
 
+const app = require('../app');
+
 const DUMMY_USERS= [
     {
         id: 'u1',
@@ -14,46 +16,70 @@ const DUMMY_USERS= [
 ];
 
 const getUsers = (req,res,next) =>{
-    res.json({users: DUMMY_USERS});
+    const query = 'SELECT * FROM "User" ';
+    app.client.execute(query, [], (err, result) => {
+        if (err) {
+           res.status(404).send({ msg: err });
+        } else {
+           res.json({ users: result.rows });
+        }
+    });
 };
     
 const signup = (req,res,next) =>{
-    const errors = validationResult(req);
+    /*const errors = validationResult(req);
     if(!errors.isEmpty())
     {
         console.log(errors);
         throw new HttpError('los input',422);
-    }
+    }*/
     const{name, image, email, password, } = req.body;
 
-    const hasUser = DUMMY_USERS.find(u=>u.email === email);
-    if(hasUser)
+    let existingUser;
+    const query = 'SELECT * FROM "User" WHERE "email"=? ALLOW FILTERING';
+    app.client.execute(query, [email], (err, result) => {
+        if (err) {
+        } else {
+            existingUser = result.first();
+        }});
+    if(existingUser)
     {
-        throw new HttpError('Vec postoji korisnik sa ovim mailom',422); 
-    }
+        const error = new HttpError ('User already exists',422);
+        return next(eror);   
+
+    } 
     const createdUser=
     {
         id:uuid(),
         name:name,
-        image: image,
+        image: 'Hardkodiranlinkneki',
         email: email,
         password: password
     };
+    var insertUser = 'INSERT INTO "User" (email,image,name,password,userid)';
 
-
-    DUMMY_USERS.push(createdUser);
-
-    res.status(201).json({
-        user: createdUser,
-        
-    });
+    app.client.execute(insertUser, ['12', '12', '12', '12','12'],(err, result) => {
+        if (err) {
+            res.status(404).send({ msg: err });
+        } else {
+            res.status(201).json({
+                user: createdUser,
+            });
+        }
+        });
 };
 
 const login = (req,res,next) =>
 {
     const{email, password} =req.body;
 
-    const identifiedUser = DUMMY_USERS.find(u=>u.email===email);
+    let identifiedUser;
+    const query = 'SELECT * FROM "User" WHERE "email"=? ALLOW FILTERING';
+    app.client.execute(query, [email], (err, result) => {
+        if (err) {
+        } else {
+            identifiedUser = result.rows[0];
+        }});
 
     if(!identifiedUser || identifiedUser.password !== password)
     {

@@ -16,7 +16,7 @@ let DUMMY_POSTS = [
     }
 ];
 
-const getPostById = (req, res, next) => {
+const getPostById =  (req, res, next) => {
     const postId = req.params.pid; // { pid: 'p1' }
     const query = 'SELECT * FROM "Post" WHERE "postID"=? ALLOW FILTERING';
     app.client.execute(query, [postId], (err, result) => {
@@ -44,9 +44,9 @@ const getPostsByUserId = (req, res, next) => {
     const query = 'SELECT * FROM "Post" WHERE "creator"=? ALLOW FILTERING';
     app.client.execute(query, [userId], (err, result) => {
         if (err) {
-            res.status(404).send({ msg: err });
+          res.status(404).send({ msg: err });
         } else {
-            res.json({ post: result.rows });
+           res.json({ post: result.rows });
         }
     });
 };
@@ -55,6 +55,11 @@ const getPostsByUserId = (req, res, next) => {
 
 const createPost = (req, res, next) => {
     var insertPost = 'INSERT INTO "Post" (creator,description,image,"like","postID",title)';
+    /*if(!errors.isEmpty())
+    {
+        console.log(errors);
+        throw new HttpError('los input',422);
+    }*/
     app.client.execute(insertPost, ['u4', 'boka svilen', 'kurac', 'palek', 'brmbrm'],(err, result) => {
         if (err) {
             res.status(404).send({ msg: err });
@@ -62,12 +67,8 @@ const createPost = (req, res, next) => {
             console.log('Post je napravljen');
         }
         });
-    /*   const errors = validationResult(req);
-       if(!errors.isEmpty())
-       {
-           console.log(errors);
-           throw new HttpError('los input',422);
-       }*/
+      const errors = validationResult(req);
+
 
 
    /* const { title, description, creator } = req.body;
