@@ -8,15 +8,23 @@ const usersRoutes = require('./routes/users-routes');
 
 const app = express();
 
-const client = new cassandra.Client({contactPoints: ['127.0.0.1'],localDataCenter: 'datacenter1',keyspace: 'pcdoctor'});
-client.connect((err,res)=>{console.log('Connected to Cassandra');});
+const client = new cassandra.Client({ contactPoints: ['127.0.0.1'], localDataCenter: 'datacenter1', keyspace: 'pcdoctor' });
+client.connect((err, res) => { console.log('Connected to Cassandra'); });
 
 app.use(bodyParser.json());
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE');
+    next();
+});
 
 app.use('/api/posts', postsRoutes); // => /api/posts...
 app.use('/api/users', usersRoutes);
 
-app.use((req,res,next) => {
+app.use((req, res, next) => {
     const error = new HttpError('Ne mogu naci ovu rutu', 404);
     throw error;
 });

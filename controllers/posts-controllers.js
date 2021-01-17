@@ -1,6 +1,6 @@
 const HttpError = require('../models/http-error');
 const uuid = require('uuid/v4');
-const {validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const { Client } = require('cassandra-driver');
 
 const app = require('../app');
@@ -19,70 +19,80 @@ let DUMMY_POSTS = [
 const getPostById = (req, res, next) => {
     const postId = req.params.pid; // { pid: 'p1' }
     const query = 'SELECT * FROM "Post" WHERE "postID"=? ALLOW FILTERING';
-    app.client.execute(query, [postId],(err,result)=>{
-        if(err){
-            res.status(404).send({msg:err});
-        }else
-        { 
-            res.json({post: result.rows});
+    app.client.execute(query, [postId], (err, result) => {
+        if (err) {
+            res.status(404).send({ msg: err });
+        } else {
+            res.json({ post: result.rows });
         }
     });
     //const post = DUMMY_POSTS.find(p => {
-      //  return p.id === postId;
+    //  return p.id === postId;
     //});
 
     //if (!post) {
 
-      //  throw new HttpError('Ne mogu pronaci post za prosledjeni ID', 404);
+    //  throw new HttpError('Ne mogu pronaci post za prosledjeni ID', 404);
     //}
 
-   // res.json({ post }); // => { place } => { place: place }
+    // res.json({ post }); // => { place } => { place: place }
 };
 
 
 const getPostsByUserId = (req, res, next) => {
     const userId = req.params.uid;
     const query = 'SELECT * FROM "Post" WHERE "creator"=? ALLOW FILTERING';
-    app.client.execute(query, [userId],(err,result)=>{
-        if(err){
-            res.status(404).send({msg:err});
-        }else
-        { 
-            res.json({post: result.rows});
+    app.client.execute(query, [userId], (err, result) => {
+        if (err) {
+            res.status(404).send({ msg: err });
+        } else {
+            res.json({ post: result.rows });
         }
     });
 };
 
-var insertPost = 'INSERT INTO "Post" (creator,description,image,like,"postID",title)';
-const createPost = (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
-        console.log(errors);
-        throw new HttpError('los input',422);
-    }
 
-    const { title, description, creator } = req.body;
+
+const createPost = (req, res, next) => {
+    var insertPost = 'INSERT INTO "Post" (creator,description,image,"like","postID",title)';
+    app.client.execute(insertPost, ['u4', 'boka svilen', 'kurac', 'palek', 'brmbrm'],(err, result) => {
+        if (err) {
+            res.status(404).send({ msg: err });
+        } else {
+            console.log('Post je napravljen');
+        }
+        });
+    /*   const errors = validationResult(req);
+       if(!errors.isEmpty())
+       {
+           console.log(errors);
+           throw new HttpError('los input',422);
+       }*/
+
+
+   /* const { title, description, creator } = req.body;
 
     const createdPost = {
         id: uuid(),
-        title:'mikri',
-        description:'maus',
-        creator:'u3'
+        title: 'mikri',
+        description: 'maus',
+        creator: 'u3'
     };
-    client.execute(insertPost,['u4','boka svilen','kurac','palek','brmbrm']);
+
+
+
+    res.status(201).json({ post: createdPost });*/
     //DUMMY_POSTS.push(createdPost);
-    res.status(201).json({ post: createdPost });
+
 
 
 };
 
 const updatePost = (req, res, next) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
+    if (!errors.isEmpty()) {
         console.log(errors);
-        throw new HttpError('los input',422);
+        throw new HttpError('los input', 422);
     }
 
     const { title, description } = req.body;
@@ -93,20 +103,19 @@ const updatePost = (req, res, next) => {
     updatePost.title = title;
     updatedPost.description = description;
     DUMMY_POSTS[postIndex] = updatedPost;
-    res.status(200).json({post: updatedPost});
+    res.status(200).json({ post: updatedPost });
 };
 const deletePost = (req, res, next) => {
-    const postId =req.params.pid;
+    const postId = req.params.pid;
     const query = 'DELETE FROM "Post" WHERE "postID"=? ALLOW FILTERING';
-    app.client.execute(query, [postId],(err,result)=>{
-        if(err){
-            res.status(404).send({msg:err});
-        }else
-        { 
-            res.json({msg: "Obrisan je post"});
+    app.client.execute(query, [postId], (err, result) => {
+        if (err) {
+            res.status(404).send({ msg: err });
+        } else {
+            res.json({ msg: "Obrisan je post" });
         }
     });
- };
+};
 
 exports.getPostById = getPostById;
 exports.getPostsByUserId = getPostsByUserId;

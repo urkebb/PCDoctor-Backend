@@ -8,6 +8,7 @@ const DUMMY_USERS= [
         id: 'u1',
         name: 'Aleska Milosevic',
         email:'test@test.com',
+        image:'mikri.jpg',
         password: 'testers'
     }
 ];
@@ -23,7 +24,7 @@ const signup = (req,res,next) =>{
         console.log(errors);
         throw new HttpError('los input',422);
     }
-    const{name, email, password, } = req.body;
+    const{name, image, email, password, } = req.body;
 
     const hasUser = DUMMY_USERS.find(u=>u.email === email);
     if(hasUser)
@@ -34,6 +35,7 @@ const signup = (req,res,next) =>{
     {
         id:uuid(),
         name:name,
+        image: image,
         email: email,
         password: password
     };
@@ -41,7 +43,10 @@ const signup = (req,res,next) =>{
 
     DUMMY_USERS.push(createdUser);
 
-    res.status(201).json({user: createdUser});
+    res.status(201).json({
+        user: createdUser,
+        
+    });
 };
 
 const login = (req,res,next) =>
