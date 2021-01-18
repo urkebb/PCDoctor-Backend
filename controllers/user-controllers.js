@@ -56,7 +56,7 @@ const signup = (req, res, next) => {
         email: email,
         password: password
     };
-    var insertUser = 'INSERT INTO "User" (email,image,name,password,userid)';
+    var insertUser = 'INSERT INTO "User" (email,image,name,password,userid) VALUES (?, ?, ?,?,?)';
 
     app.client.execute(insertUser, ['jedan.j@gmail.com', '12', '12', 'safasfasfasfa', '13131'], (err, result) => {
         if (err) {
