@@ -33,21 +33,29 @@ const signup = (req, res, next) => {
         console.log(errors);
         throw new HttpError('los input',422);
     }*/
-    const { name, image, email, password, } = req.body;
+    const { name, image, email, password } = req.body;
 
     let existingUser;
     const query = 'SELECT * FROM "User" WHERE "email"=? ALLOW FILTERING';
-    app.client.execute(query, [email], (err, result) => {
+    app.client.execute(query, [req.body.email], (err, result) => {
         if (err) {
         } else {
-            existingUser = result.first();
+
+            existingUser = result.rows[0];
+
+            if (existingUser != null) {
+                console.log('bacam eror');
+                res.status(422).send({ msg: err });
+                //throw new HttpError('User already exists', 422);  
+            }
+
+            console.log(existingUser);
         }
     });
-    if (existingUser) {
-        const error = new HttpError('User already exists', 422);
-        return next(eror);
 
-    }
+
+    let id = ' ' + uuid();
+
     const createdUser =
     {
         id: uuid(),
@@ -56,19 +64,22 @@ const signup = (req, res, next) => {
         email: email,
         password: password
     };
+
     var insertUser = 'INSERT INTO "User" (email,image,name,password,userid) VALUES (?, ?, ?,?,?)';
 
-    app.client.execute(insertUser, ['jedan.j@gmail.com', '12', '12', 'safasfasfasfa', '13131'], (err, result) => {
+    app.client.execute(insertUser, [req.body.email, 'daskdfas', req.body.name, req.body.password, id], (err, result) => {
         if (err) {
             res.status(404).send({ msg: err });
         } else {
             res.status(201).json({
+
                 user: createdUser,
 
             });
 
         }
     });
+
 };
 
 const login = (req, res, next) => {
