@@ -16,7 +16,7 @@ const DUMMY_USERS = [
 ];
 
 const getUsers = (req, res, next) => {
-    const query = 'SELECT * FROM "User" ';
+    const query = 'SELECT * FROM user_by_id ';
     app.client.execute(query, [], (err, result) => {
         if (err) {
             res.status(404).send({ msg: err });
@@ -27,77 +27,76 @@ const getUsers = (req, res, next) => {
 };
 
 const signup = (req, res, next) => {
-    /*const errors = validationResult(req);
+    const errors = validationResult(req);
     if(!errors.isEmpty())
     {
         console.log(errors);
-        throw new HttpError('los input',422);
-    }*/
+        throw new HttpError('Los input',422);
+    };
+
     const { name, image, email, password } = req.body;
 
-    let existingUser;
-    const query = 'SELECT * FROM "User" WHERE "email"=? ALLOW FILTERING';
-    app.client.execute(query, [req.body.email], (err, result) => {
+    const query = 'SELECT email FROM credidentials WHERE email='+ "'" + email + "'";
+    app.client.execute(query,function(err, result){
         if (err) {
+            res.status(404).send({ msg: err });
         } else {
-
-            existingUser = result.rows[0];
-
-            if (existingUser != null) {
-                console.log('bacam eror');
-                res.status(422).send({ msg: err });
-                //throw new HttpError('User already exists', 422);  
-            }
-
-            console.log(existingUser);
+             var pronadjeniMail = result.rows[0]["email"];
+             if(!(pronadjeniMail === undefined))
+             {
+                throw new HttpError('Pronadjen je vec korisnik sa ovim mailom,molimo logujte se', 402);
+             }   
         }
     });
 
-
-    let id = ' ' + uuid();
+    let idp=uuid();
 
     const createdUser =
     {
-        id: uuid(),
+        id:idp,
         name: name,
         image: 'Hardkodiranlinkneki',
         email: email,
         password: password
     };
 
-    var insertUser = 'INSERT INTO "User" (email,image,name,password,userid) VALUES (?, ?, ?,?,?)';
+    var insertUser = 'INSERT INTO user_by_id (email,image,name,password,userid) VALUES ('+"'"+email+"'," + "'"+'haradkodiranurl'
+    +"','" + name +"','"+ password + "','" + idp +"'"+')';
 
-    app.client.execute(insertUser, [req.body.email, 'daskdfas', req.body.name, req.body.password, id], (err, result) => {
+    app.client.execute(insertUser,function (err, result) {
         if (err) {
             res.status(404).send({ msg: err });
         } else {
             res.status(201).json({
-
-                user: createdUser,
-
+                user : createdUser
             });
 
         }
     });
-
 };
 
 const login = (req, res, next) => {
     const { email, password } = req.body;
 
-    let identifiedUser;
-    const query = 'SELECT * FROM "User" WHERE "email"=? ALLOW FILTERING';
-    app.client.execute(query, [email], (err, result) => {
+    const query = 'SELECT email FROM credidentials WHERE email='+ "'" + email + "'";
+    app.client.execute(query,function(err, result){
         if (err) {
-        } else {
-            identifiedUser = result.rows[0];
+            res.status(404).send({ msg: err });
+        } 
+        else 
+        {
+             var pronadjeniMail = result.rows[0]["email"];
+             var pronadjeniPass = result.rows[0]["password"];
+             if(!(pronadjeniMail === undefined) && pronadjeniPass===password)
+             {
+                res.json({ message: 'logged in' });
+             }
+             else
+             {
+                throw new HttpError('Lose informacije', 401);
+             }   
         }
     });
-
-    if (!identifiedUser || identifiedUser.password !== password) {
-        throw new HttpError('Nije pronadjen korisnik', 401);
-    }
-    res.json({ message: 'logged in' });
 };
 
 exports.getUsers = getUsers;
