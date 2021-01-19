@@ -11,15 +11,15 @@ let DUMMY_POSTS = [
         title: 'Empire State Building',
         description: 'One of the most famous sky scrapers in the world!',
         creator: 'u1',
-        like: 0,
+        likes: 0,
         image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
     }
 ];
 
 const getPostById =  (req, res, next) => {
     const postId = req.params.pid; // { pid: 'p1' }
-    const query = 'SELECT * FROM "Post" WHERE "postID"=? ALLOW FILTERING';
-    app.client.execute(query, [postId], (err, result) => {
+    const query = 'SELECT * FROM post_by_id WHERE postid=' + "'" + postId + "'";
+    app.client.execute(query,function (err, result){
         if (err) {
             res.status(404).send({ msg: err });
         } else {
@@ -54,17 +54,34 @@ const getPostsByUserId = (req, res, next) => {
 
 
 const createPost = (req, res, next) => {
-    var insertPost = 'INSERT INTO "Post" (creator,description,image,"like","postID",title)';
-    /*if(!errors.isEmpty())
+
+    const errors = validationResult(req);
+    if(!errors.isEmpty())
     {
         console.log(errors);
-        throw new HttpError('los input',422);
-    }*/
-    app.client.execute(insertPost, ['u4', 'boka svilen', 'kurac', 'palek', 'brmbrm'],(err, result) => {
+        throw new HttpError('Los input',422);
+    };
+
+    const { title, description,creator } = req.body;
+    let idp = uuid();
+    
+    const createdPost = {
+        id: idp,
+        title,
+        description,
+        creator: 'u3',
+        likes: 0,
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
+    };
+
+
+    var insertPost = 'INSERT INTO "Post" (creator,description,image,"like","postID",title)';
+
+    client.execute(insertPost, ['u4', 'boka svilen', 'kurac', 'palek', 'brmbrm'],(err, result) => {
         if (err) {
             res.status(404).send({ msg: err });
         } else {
-            console.log('Post je napravljen');
+            res.status(201).json({ post: createdPost });
         }
         });
       const errors = validationResult(req);
