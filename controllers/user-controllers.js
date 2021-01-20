@@ -40,9 +40,8 @@ const signup = (req, res, next) => {
     app.client.execute(query,function(err, result){
         if (err) {
             res.status(404).send({ msg: err });
-        } else {
-             var pronadjeniMail = result.rows[0]["email"];
-             if(!(pronadjeniMail === undefined))
+        } else{
+             if(!(result.rows[0]["email"]=== undefined))
              {
                 throw new HttpError('Pronadjen je vec korisnik sa ovim mailom,molimo logujte se', 402);
              }   
@@ -60,17 +59,24 @@ const signup = (req, res, next) => {
         password: password
     };
 
-    var insertUser = 'INSERT INTO user_by_id (email,image,name,password,userid) VALUES ('+"'"+email+"'," + "'"+'haradkodiranurl'
-    +"','" + name +"','"+ password + "','" + idp +"'"+')';
-
+    var insertUser2 = 'INSERT INTO credidentials (email,password) VALUES ('+"'"+email+"'," + "'"+ password + "'"+')';
     app.client.execute(insertUser,function (err, result) {
         if (err) {
             res.status(404).send({ msg: err });
-        } else {
+        } 
+         });
+
+    var insertUser = 'INSERT INTO user_by_id (email,image,name,password,userid) VALUES ('+"'"+email+"'," + "'"+'haradkodiranurl'
+    +"','" + name +"','"+ password + "','" + idp +"'"+')';
+    app.client.execute(insertUser,function (err, result) {
+        if (err) {
+            res.status(404).send({ msg: err });
+        }
+         else
+          {
             res.status(201).json({
                 user : createdUser
             });
-
         }
     });
 };
@@ -85,9 +91,7 @@ const login = (req, res, next) => {
         } 
         else 
         {
-             var pronadjeniMail = result.rows[0]["email"];
-             var pronadjeniPass = result.rows[0]["password"];
-             if(!(pronadjeniMail === undefined) && pronadjeniPass===password)
+             if(!(result.rows[0]["email"] === undefined) && result.rows[0]["password"]===password)
              {
                 res.json({ message: 'logged in' });
              }
