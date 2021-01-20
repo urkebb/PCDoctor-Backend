@@ -21,7 +21,7 @@ const getUsers = (req, res, next) => {
         if (err) {
             res.status(404).send({ msg: err });
         } else {
-            res.json({ users: result.rows });
+            res.json({ users: result.rows});
         }
     });
 };
