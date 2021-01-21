@@ -52,7 +52,8 @@ const createPost = (req, res, next) => {
     if(!errors.isEmpty())
     {
         console.log(errors);
-        throw new HttpError('Los input',422);
+        const error = new HttpError('Los input',422);
+        return next(error);
     };
 
     const { title, description,creator } = req.body;
@@ -67,7 +68,7 @@ const createPost = (req, res, next) => {
         image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
     };
 
-    var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postID,title) VALUES ('+"'1',"+description+"','"+'slika'+"," + '0' + ",'" + idp + "','" + title + "')";
+    var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postid,title) VALUES ('+ " '1' , "+description+" ',' "+ 'slika' + "," + '0' + ",'" + idp + "','" + title + "')";
 
     client.execute(insertPost,function (err, result){
         if (err) {
@@ -75,7 +76,7 @@ const createPost = (req, res, next) => {
         }
         });
 
-    var insertPost2 = 'INSERT INTO post_by_userid (userid,description,image,likes,postID,title) VALUES ('+"'1',"+description+"','"+'slika'+"," + '0' + ",'" + idp + "','" + title + "')";
+    var insertPost2 = 'INSERT INTO post_by_userid (userid,description,image,likes,postid,title) VALUES ('+"'1',"+description+"','"+'slika'+"," + '0' + ",'" + idp + "','" + title + "')";
 
     client.execute(insertPost2,function (err, result){
          if (err) {

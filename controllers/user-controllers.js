@@ -69,7 +69,8 @@ const signup = async (req, res, next) => {
                     else {
                         res.status(201).json({
 
-                            user: createdUser
+                            user: createdUser,
+                            message: 'registrovali ste se'
                         });
                     }
                 });
@@ -102,10 +103,12 @@ const login = (req, res, next) => {
         }
         else {
             if (result.rows[0] === undefined) {
-                console.log(result.rows[0]);
-                res.status(401);
-                res.send({ message: 'Nije pronadjen korisnik' });
+                const error=new HttpError('Nije pronadjen korisnik',401);
+                console.log(error.message);
+                return next(error);
 
+               // res.status(401);
+                //res.send({ message: 'Nije pronadjen korisnik' });
             }
             else {
 
