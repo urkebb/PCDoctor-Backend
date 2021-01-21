@@ -54,7 +54,7 @@ const signup = async (req, res, next) => {
                     password: password
                 };
 
-                var insertUser2 = 'INSERT INTO credidentials (email,password) VALUES (' + "'" + email + "'," + "'" + password + "'" + ')';
+                var insertUser2 = 'INSERT INTO credidentials (email,password,userid) VALUES (' + "'" + email + "'," + "'" + password + "','" + idp + "'" + ')';
                 app.client.execute(insertUser2, function (err, result) {
                     if (err) {
                         res.status(404).send({ msg: err });
@@ -68,7 +68,6 @@ const signup = async (req, res, next) => {
                     }
                     else {
                         res.status(201).json({
-
                             user: createdUser,
                             message: 'registrovali ste se'
                         });
@@ -79,12 +78,7 @@ const signup = async (req, res, next) => {
             } else {
                 res.status(401);
                 res.send({ message: 'Pronadjen je korisnik sa ovim e-mailom' });
-
             }
-
-
-
-
 
         }
     });
@@ -95,7 +89,7 @@ const signup = async (req, res, next) => {
 const login = (req, res, next) => {
     const { email, password } = req.body;
 
-    const query = 'SELECT email,password FROM credidentials WHERE email=' + "'" + email + "'";
+    const query = 'SELECT email,password,userid FROM credidentials WHERE email=' + "'" + email + "'";
     app.client.execute(query, function (err, result) {
         
         if (err) {
@@ -111,11 +105,14 @@ const login = (req, res, next) => {
                 //res.send({ message: 'Nije pronadjen korisnik' });
             }
             else {
+                let id=result.rows[0]["userid"];
 
                 if ((result.rows[0]["email"] === email) && (result.rows[0]["password"] === password)) {
                     res.status(200);
+                    
                     res.json({
-                        message: 'uspesno si se logovao'
+                        message: 'uspesno si se logovao',
+                        id: id
                     });
                 }
                 else {

@@ -56,35 +56,43 @@ const createPost = (req, res, next) => {
         return next(error);
     };
 
-    const { title, description,creator } = req.body;
+    const { title, description, creator } = req.body;
     let idp = uuid()+'';
 
     const createdPost = {
         id: idp,
         title,
         description,
-        creator: 'u3',
+        creator: creator,
         likes: 0,
         image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
     };
+            //                                                                                       (' + "'" + email + "'," + "'" + password + "','" + idp + "'" + ')';
+    var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + " ',' "+ 'slika' + "'," + 0 + ",'" + idp + "','" + title + "')";
 
-    var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postid,title) VALUES ('+ " '1' , "+description+" ',' "+ 'slika' + "," + '0' + ",'" + idp + "','" + title + "')";
-
-    client.execute(insertPost,function (err, result){
+    app.client.execute(insertPost,function (err, result){
         if (err) {
-            res.status(404).send({ msg: err });
+            console.log('desava se neko cudo');
+            res.status(404).send({ message: 'greska' })
+        }
+        else{
+            var insertPost2 = 'INSERT INTO post_by_userid (userid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + "',' " +'slika'+ "'," + 0 + ",'" + idp + "','" + title + "')";
+
+            app.client.execute(insertPost2,function (err, result){
+                 if (err) {
+                        res.status(404).send({ message: err });
+                    } else {
+                        res.status(201).json({ 
+                            post: createdPost,
+                            message: 'post je napravljen'
+                         });
+                    }
+                    });
+
         }
         });
 
-    var insertPost2 = 'INSERT INTO post_by_userid (userid,description,image,likes,postid,title) VALUES ('+"'1',"+description+"','"+'slika'+"," + '0' + ",'" + idp + "','" + title + "')";
-
-    client.execute(insertPost2,function (err, result){
-         if (err) {
-                res.status(404).send({ msg: err });
-            } else {
-                res.status(201).json({ post: createdPost });
-            }
-            });
+    
 };
 
 const updatePost = (req, res, next) => {
