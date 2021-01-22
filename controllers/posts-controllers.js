@@ -23,7 +23,7 @@ const getPostById =  (req, res, next) => {
         if (err) {
             res.status(404).send({ msg: err });
         } else {
-            res.json({ post: result.rows });
+            res.json({ post: result.rows});
         }
     });
     //if (!post) {
@@ -35,11 +35,12 @@ const getPostById =  (req, res, next) => {
 
 const getPostsByUserId = (req, res, next) => {
     const userId = req.params.uid;
-    const query = 'SELECT * FROM post_by_userid WHERE userid=' + "'" + userId + "'";
-    app.client.execute(query, [userId], (err, result) => {
+    const query = 'SELECT * FROM post_by_id WHERE creatorid=' + "'" + userId + "'" + 'ALLOW FILTERING';
+    app.client.execute(query, (err, result) => {
         if (err) {
           res.status(404).send({ msg: err });
         } else {
+            console.log(result.rows);
            res.json({ post: result.rows });
         }
     });
@@ -68,7 +69,7 @@ const createPost = (req, res, next) => {
         image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
     };
             //                                                                                       (' + "'" + email + "'," + "'" + password + "','" + idp + "'" + ')';
-    var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + " ',' "+ 'slika' + "'," + 0 + ",'" + idp + "','" + title + "')";
+    var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + " ',' "+ createdPost.image + "'," + 0 + ",'" + idp + "','" + title + "')";
 
     app.client.execute(insertPost,function (err, result){
         if (err) {
@@ -76,7 +77,7 @@ const createPost = (req, res, next) => {
             res.status(404).send({ message: 'greska' })
         }
         else{
-            var insertPost2 = 'INSERT INTO post_by_userid (userid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + "',' " +'slika'+ "'," + 0 + ",'" + idp + "','" + title + "')";
+            var insertPost2 = 'INSERT INTO post_by_userid (userid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + "',' " +createdPost.image+ "'," + 0 + ",'" + idp + "','" + title + "')";
 
             app.client.execute(insertPost2,function (err, result){
                  if (err) {
@@ -107,7 +108,7 @@ const updatePost = (req, res, next) => {
     const query = 'SELECT * FROM post_by_id WHERE postid=' + "'" + postId + "'";
     app.client.execute(query,function (err, result){
     if (err) {
-        res.status(404).send({ msg: err });
+        res.status(404).send({ message: err });
         }
         else
         {
@@ -121,14 +122,14 @@ const updatePost = (req, res, next) => {
                 const query2 = 'UPDATE post_by_userid SET title='+"'" + title +"'" +',description =' +"'"+ description +"'"+ 'WHERE userid=' +"'" + userid + "' "+'IF EXISTS';
                 app.client.execute(query,function (err, result){
                     if (err) {
-                        res.status(404).send({ msg: err });
+                        res.status(404).send({ message: err });
                     }
                 });
 
                 const query = 'UPDATE post_by_id SET title='+"'" + title +"'" +',description =' +"'"+ description +"'"+ 'WHERE postid=' +"'" + postId + "' "+'IF EXISTS';
                 app.client.execute(query,function (err, result){
                 if (err) {
-                    res.status(404).send({ msg: err });
+                    res.status(404).send({ message: err });
                 }
                 else 
                 {   
