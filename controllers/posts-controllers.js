@@ -145,7 +145,9 @@ const deletePost = (req, res, next) => {
             res.status(404).send({ message: err });
         }
         else {
-            if (result.rows[0]["postid"] === undefined) {
+           
+
+            if (result.rows[0] === undefined) {
                 res.json({ message: "Nije pronadjen post" });
             }
             else {
@@ -162,10 +164,16 @@ const deletePost = (req, res, next) => {
                 const query2 = 'DELETE FROM post_by_id WHERE postid=' + "'" + postId + "'";
                 app.client.execute(query2, function (err, result) {
                     if (err) {
-                        res.status(404).send({ message: err });
+                       
+                        res.status(404).send({ 
+                            id:userid,
+                            message: err });
                     }
                     else {
-                        res.json({ message: "Obrisan je post" });
+                        
+                        res.json({ 
+                            id:userid,
+                            message: "Obrisan je post" });
                     }
                 });
             }
