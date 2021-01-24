@@ -33,7 +33,7 @@ const signup = async (req, res, next) => {
         return next(error);
     };
 
-    const { name, image, email, password } = req.body;
+    const { name, email, password } = req.body;
 
     const query = 'SELECT email FROM credidentials WHERE email=' + "'" + email + "'";
     app.client.execute(query, function (err, result) {
