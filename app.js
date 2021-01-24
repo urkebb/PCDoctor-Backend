@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const bodyParser = require('body-parser');
 const HttpError = require('./models/http-error');
 const cassandra = require('cassandra-driver');
@@ -12,6 +14,7 @@ const client = new cassandra.Client({ contactPoints: ['127.0.0.1'], localDataCen
 client.connect((err, res) => { console.log('Connected to Cassandra'); });
 
 app.use(bodyParser.json());
+app.use('/uploads/images',express.static(path.join('uploads','images')));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -30,6 +33,12 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
+    if(req.file)
+    {
+        fs.unlink(req.file.path,err=>{
+            console.log(err);
+        });
+    }
     if (res.headerSent) {
         return next(error);
     }

@@ -52,7 +52,7 @@ const signup = async (req, res, next) => {
                 {
                     id: idp,
                     name: name,
-                    image: 'Hardkodiranlinkneki',
+                    image: 'http://localhost:5000/' + req.file.path,
                     email: email,
                     password: password
                 };
@@ -64,7 +64,7 @@ const signup = async (req, res, next) => {
                     }
                 });
 
-                var insertUser = 'INSERT INTO user_by_id (email,image,name,userid) VALUES (' + "'" + email + "'," + "'" + 'haradkodiranurl' + "','" + name + "','" + idp + "'" + ')';
+                var insertUser = 'INSERT INTO user_by_id (email,image,name,userid) VALUES (' + "'" + email + "'," + "'" + 'http://localhost:5000/' + req.file.path + "','" + name + "','" + idp + "'" + ')';
                 app.client.execute(insertUser, function (err, result) {
                     if (err) {
                         res.status(404).send({ message: err });
@@ -82,8 +82,10 @@ const signup = async (req, res, next) => {
 
 
             } else {
-                res.status(401);
-                res.send({ message: 'Pronadjen je korisnik sa ovim e-mailom' });
+                const error = new HttpError('Pronadjen je korisnik sa ovim e-mailom', 401);
+                return next(error);
+               // res.status(401);
+                //res.send({ message: 'Pronadjen je korisnik sa ovim e-mailom' });
             }
 
         }

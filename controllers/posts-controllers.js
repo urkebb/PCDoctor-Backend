@@ -1,5 +1,6 @@
 const HttpError = require('../models/http-error');
 const uuid = require('uuid/v4');
+const fs = require('fs');
 const { validationResult } = require('express-validator');
 const { Client } = require('cassandra-driver');
 
@@ -65,7 +66,7 @@ const createPost = (req, res, next) => {
         description,
         creator: creator,
         likes: 0,
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg'
+        image: 'http://localhost:5000/' + req.file.path
     };
     //                                                                                       (' + "'" + email + "'," + "'" + password + "','" + idp + "'" + ')';
     var insertPost = 'INSERT INTO post_by_id (creatorid,description,image,likes,postid,title) VALUES (' + "'" + creator + "'," + "'" + description + " ',' " + createdPost.image + "'," + 0 + ",'" + idp + "','" + title + "')";
@@ -151,8 +152,12 @@ const deletePost = (req, res, next) => {
                 res.json({ message: "Nije pronadjen post" });
             }
             else {
-                let userid = result.rows[0]["creatorid"]
-
+                let userid = result.rows[0]["creatorid"];
+                let imagePat = result.rows[0]["image"];
+                let imagePath = imagePat.substr(23);
+                fs.unlink(imagePath,err=>{
+                    console.log(err);
+                });
                 /*
                 const query2 = 'DELETE FROM post_by_userid WHERE userid=' + "'" + userid + "'";
                 app.client.execute(query, function (err, result) {
