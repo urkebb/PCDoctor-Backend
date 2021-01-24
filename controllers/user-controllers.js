@@ -27,8 +27,12 @@ const getUsers = (req, res, next) => {
 };
 
 const signup = async (req, res, next) => {
+
+   
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        console.log(errors);
         const error = new HttpError('Los input', 422);
         return next(error);
     };
@@ -38,11 +42,10 @@ const signup = async (req, res, next) => {
     const query = 'SELECT email FROM credidentials WHERE email=' + "'" + email + "'";
     app.client.execute(query, function (err, result) {
         if (err) {
-            res.status(404).send({ msg: err });
+            res.status(404).send({ message: err });
         } else {
             if (result.rows[0] === undefined) {
-
-
+                
                 let idp = uuid();
 
                 const createdUser =
@@ -57,20 +60,23 @@ const signup = async (req, res, next) => {
                 var insertUser2 = 'INSERT INTO credidentials (email,password,userid) VALUES (' + "'" + email + "'," + "'" + password + "','" + idp + "'" + ')';
                 app.client.execute(insertUser2, function (err, result) {
                     if (err) {
-                        res.status(404).send({ msg: err });
+                        res.status(404).send({ message: err });
                     }
                 });
 
                 var insertUser = 'INSERT INTO user_by_id (email,image,name,userid) VALUES (' + "'" + email + "'," + "'" + 'haradkodiranurl' + "','" + name + "','" + idp + "'" + ')';
                 app.client.execute(insertUser, function (err, result) {
                     if (err) {
-                        res.status(404).send({ msg: err });
+                        res.status(404).send({ message: err });
                     }
                     else {
+                        
                         res.status(201).json({
+                            id:idp,
                             user: createdUser,
                             message: 'registrovali ste se'
                         });
+                        
                     }
                 });
 
@@ -93,7 +99,7 @@ const login = (req, res, next) => {
     app.client.execute(query, function (err, result) {
         
         if (err) {
-            res.status(404).send({ msg: err });
+            res.status(404).send({ message: err });
         }
         else {
             if (result.rows[0] === undefined) {
