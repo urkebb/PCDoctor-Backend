@@ -41,7 +41,10 @@ const getPostsByUserId = (req, res, next) => {
         if (err) {
             res.status(404).send({ message: err });
         } else {
-            console.log(result.rows);
+            let a = result.rows;
+            a.forEach(element => {
+                console.log(element["postid"]);
+            });
             res.json({ post: result.rows });
         }
     });
